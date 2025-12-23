@@ -1,0 +1,131 @@
+@model Projet_Binome.Models.ViewModels.LearningHistoryViewModel
+
+@{
+    ViewData["Title"] = "Historique";
+}
+
+<h1 class="mb-4">Votre progression</h1>
+
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <strong>Cours suivis</strong>
+            </div>
+            <div class="card-body">
+                @if (Model.Courses.Any())
+                {
+                    foreach (var course in Model.Courses)
+                    {
+                        var status = course.QuizPassed ? "Quiz reussi" : "En cours";
+                        <div class="mb-3 p-3 border rounded">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="mb-1">@course.Course.Title</h5>
+                                    <div class="text-muted small">Dernier acces : @course.LastAccessed.ToLocalTime().ToString("g")</div>
+                                    @if (course.CompletedOn.HasValue)
+                                    {
+                                        <div class="text-success small">Termine le @course.CompletedOn.Value.ToLocalTime().ToString("d")</div>
+                                    }
+                                </div>
+                                <span class="badge @(course.QuizPassed ? "bg-success" : "bg-secondary")">@status</span>
+                            </div>
+                            <div class="progress mt-2">
+                                <div class="progress-bar @(course.PercentComplete >= 100 ? "bg-success" : "bg-info")" role="progressbar" style="width: @course.PercentComplete%;" aria-valuenow="@course.PercentComplete" aria-valuemin="0" aria-valuemax="100">
+                                    @course.PercentComplete.ToString("0")%
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <a asp-controller="Courses" asp-action="Details" asp-route-id="@course.CourseId" class="small">Continuer le cours</a>
+                                @if (course.CertificateId.HasValue)
+                                {
+                                    <span class="text-success small ms-2">Certificat obtenu</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-muted">Aucun cours suivi pour le moment.</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-warning">
+                <strong>Derniers quiz</strong>
+            </div>
+            <div class="card-body">
+                @if (Model.Attempts.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Cours</th>
+                                    <th>Score</th>
+                                    <th>Resultat</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var attempt in Model.Attempts)
+                                {
+                                    <tr>
+                                        <td>@attempt.Quiz.Course.Title</td>
+                                        <td>@attempt.Score / @attempt.TotalQuestions (@(System.Math.Round(attempt.Percentage * 100))%)</td>
+                                        <td>
+                                            @if (attempt.Passed)
+                                            {
+                                                <span class="badge bg-success">Reussi</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Echoue</span>
+                                            }
+                                        </td>
+                                        <td>@attempt.TakenAt.ToLocalTime().ToString("g")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-muted">Aucun quiz passe pour le moment.</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-success text-white">
+        <strong>Certificats</strong>
+    </div>
+    <div class="card-body">
+        @if (Model.Certificates.Any())
+        {
+            <div class="row">
+                @foreach (var certificate in Model.Certificates)
+                {
+                    <div class="col-md-4 mb-3">
+                        <div class="border rounded p-3 h-100">
+                            <h5 class="mb-1">@certificate.Course.Title</h5>
+                            <div class="text-muted small mb-2">Obtenu le @certificate.CompletionDate.ToLocalTime().ToString("d")</div>
+                            <a class="btn btn-outline-success btn-sm" asp-controller="Certificates" asp-action="Display" asp-route-id="@certificate.Id">Voir le certificat</a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-muted">Aucun certificat pour l'instant. Terminez un quiz avec au moins 70% pour en obtenir un.</div>
+        }
+    </div>
+</div>

@@ -1,0 +1,33 @@
+@model IEnumerable<Projet_Binome.Models.Course>
+
+@{
+    ViewData["Title"] = "Courses";
+}
+
+<section class="mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <p class="text-uppercase text-muted mb-1" style="letter-spacing: 1px;">Catalogue</p>
+            <h1 class="fw-bold mb-1">Our Courses</h1>
+            <p class="text-muted mb-0">Explore curated tracks with lessons, quizzes, and certificates.</p>
+        </div>
+        <div>
+            <a class="btn btn-primary" asp-controller="Home" asp-action="Index">Retour à l'accueil</a>
+        </div>
+    </div>
+</section>
+
+<div class="row g-4">
+    @foreach (var item in Model) {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 course-card">
+                <img src="@item.ImageUrl" class="card-img-top" alt="Course Image">
+                <div class="card-body">
+                    <h5 class="card-title">@item.Title</h5>
+                    <p class="card-text">@item.Description</p>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary mt-auto">View Course</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

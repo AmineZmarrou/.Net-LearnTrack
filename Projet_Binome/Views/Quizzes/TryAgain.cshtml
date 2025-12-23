@@ -1,0 +1,7 @@
+@{
+    ViewData["Title"] = "Try Again";
+}
+
+<h1>Try Again</h1>
+<p>You did not pass the quiz. Score : @ViewBag.Score / @ViewBag.Total (@ViewBag.Percent%).</p>
+<p><a class="btn btn-primary" asp-controller="Quizzes" asp-action="TakeQuiz" asp-route-id="@ViewBag.QuizId">Try Again</a></p>

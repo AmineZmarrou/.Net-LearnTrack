@@ -1,0 +1,27 @@
+@model Projet_Binome.Models.Quiz
+
+@{
+    ViewData["Title"] = "Take Quiz";
+}
+
+<h1>@Model.Title</h1>
+
+<form asp-action="SubmitQuiz">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="quizId" value="@Model.Id" />
+    <p class="text-muted">Connecte en tant que <strong>@ViewBag.UserName</strong>. Score requis : 70% ou plus.</p>
+    @foreach (var question in Model.Questions)
+    {
+        <h4>@question.Text</h4>
+        <ul class="list-group">
+            @foreach (var choice in question.Choices)
+            {
+                <li class="list-group-item">
+                    <input type="radio" name="question-@question.Id" value="@choice.Id" /> @choice.Text
+                </li>
+            }
+        </ul>
+        <br />
+    }
+    <button type="submit" class="btn btn-primary">Submit Quiz</button>
+</form>

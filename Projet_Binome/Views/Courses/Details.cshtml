@@ -1,0 +1,273 @@
+@using System.Globalization
+@model Projet_Binome.Models.ViewModels.CourseDetailsViewModel
+
+@{
+    ViewData["Title"] = "Course Details";
+    var origin = $"{Context.Request.Scheme}://{Context.Request.Host}";
+    var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+}
+
+@functions {
+    private string? BuildEmbedUrl(string? link)
+    {
+        if (string.IsNullOrWhiteSpace(link))
+        {
+            return null;
+        }
+
+        link = link.Trim();
+
+        if (link.Contains("youtube.com/embed/", StringComparison.OrdinalIgnoreCase) ||
+            link.Contains("youtube-nocookie.com/embed/", StringComparison.OrdinalIgnoreCase))
+        {
+            return link;
+        }
+
+        string? videoId = null;
+        string? playlistId = null;
+
+        const string shortHost = "youtu.be/";
+        var shortIndex = link.IndexOf(shortHost, StringComparison.OrdinalIgnoreCase);
+        if (shortIndex >= 0)
+        {
+            var start = shortIndex + shortHost.Length;
+            var end = link.IndexOfAny(new[] { '?', '&', '#' }, start);
+            if (end == -1) end = link.Length;
+            videoId = link.Substring(start, end - start);
+        }
+        else
+        {
+            const string marker = "v=";
+            var markerIndex = link.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+            if (markerIndex >= 0)
+            {
+                var start = markerIndex + marker.Length;
+                var end = link.IndexOfAny(new[] { '&', '?', '#' }, start);
+                if (end == -1) end = link.Length;
+                videoId = link.Substring(start, end - start);
+            }
+        }
+
+        const string listMarker = "list=";
+        var listIndex = link.IndexOf(listMarker, StringComparison.OrdinalIgnoreCase);
+        if (listIndex >= 0)
+        {
+            var start = listIndex + listMarker.Length;
+            var end = link.IndexOfAny(new[] { '&', '?', '#' }, start);
+            if (end == -1) end = link.Length;
+            playlistId = link.Substring(start, end - start);
+        }
+
+        if (string.IsNullOrWhiteSpace(videoId) && string.IsNullOrWhiteSpace(playlistId))
+        {
+            return null;
+        }
+
+        if (!string.IsNullOrWhiteSpace(videoId))
+        {
+            var url = $"https://www.youtube.com/embed/{videoId}";
+            if (!string.IsNullOrWhiteSpace(playlistId))
+            {
+                url += $"?list={playlistId}";
+            }
+            return url;
+        }
+
+        return $"https://www.youtube.com/embed/videoseries?list={playlistId}";
+    }
+
+    private string AppendQuery(string url, string query)
+    {
+        if (url.Contains("?", StringComparison.Ordinal))
+        {
+            return $"{url}&{query}";
+        }
+
+        return $"{url}?{query}";
+    }
+}
+
+@if (isAuthenticated)
+{
+    <form id="lesson-progress-token" class="d-none">
+        @Html.AntiForgeryToken()
+    </form>
+}
+
+<h1>@Model.Course.Title</h1>
+
+<div>
+    <h4>Course Details</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            Description
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Course.Description
+        </dd>
+    </dl>
+</div>
+
+<div class="mt-4">
+    <h3>Lessons</h3>
+    <div class="row">
+        @foreach (var lesson in Model.Course.Lessons)
+        {
+            var embedUrl = BuildEmbedUrl(lesson.YouTubeLink);
+            var progress = Model.LessonProgress.TryGetValue(lesson.Id, out var entry) ? entry : null;
+            var lastPosition = progress?.LastPositionSeconds ?? 0;
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">@lesson.Title</h5>
+                        <p class="card-text">@lesson.Content</p>
+                        @if (!string.IsNullOrWhiteSpace(embedUrl))
+                        {
+                            var playerUrl = AppendQuery(embedUrl, $"enablejsapi=1&origin={System.Uri.EscapeDataString(origin)}");
+                            <div class="ratio ratio-16x9 mb-2">
+                                <iframe id="lesson-player-@lesson.Id"
+                                        class="lesson-player"
+                                        src="@playerUrl"
+                                        title="@lesson.Title"
+                                        loading="lazy"
+                                        data-lesson-id="@lesson.Id"
+                                        data-last-position="@lastPosition.ToString("0.###", CultureInfo.InvariantCulture)"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        allowfullscreen></iframe>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-muted small mb-2">Lien video indisponible pour cet element.</div>
+                        }
+                        <a class="btn btn-link p-0" href="@lesson.YouTubeLink" target="_blank">Ouvrir sur YouTube</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@if (Model.Course.Quiz != null)
+{
+    <div class="mt-4">
+        <h3>Quiz</h3>
+        <p>
+            <a asp-controller="Quizzes" asp-action="TakeQuiz" asp-route-id="@Model.Course.Quiz.Id" class="btn btn-success">Start Quiz</a>
+        </p>
+    </div>
+}
+
+<div class="mt-4">
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @if (isAuthenticated)
+    {
+        <script src="https://www.youtube.com/iframe_api"></script>
+        <script>
+            (function () {
+                const progressUrl = '@Url.Action("UpdateLessonProgress", "Courses")';
+                const token = document.querySelector('#lesson-progress-token input[name="__RequestVerificationToken"]')?.value;
+                const players = new Map();
+                const activeIntervals = new Map();
+                const updateIntervalMs = 10000;
+
+                if (!progressUrl || !token) {
+                    return;
+                }
+
+                function sendProgress(lessonId, player) {
+                    if (!player || typeof player.getCurrentTime !== 'function') {
+                        return;
+                    }
+
+                    const duration = player.getDuration();
+                    const currentTime = player.getCurrentTime();
+                    if (!Number.isFinite(duration) || duration <= 0) {
+                        return;
+                    }
+
+                    const payload = {
+                        lessonId: lessonId,
+                        currentTimeSeconds: currentTime,
+                        durationSeconds: duration
+                    };
+
+                    fetch(progressUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        },
+                        body: JSON.stringify(payload),
+                        keepalive: true
+                    });
+                }
+
+                function startTracking(lessonId, player) {
+                    if (activeIntervals.has(lessonId)) {
+                        return;
+                    }
+
+                    const intervalId = window.setInterval(function () {
+                        sendProgress(lessonId, player);
+                    }, updateIntervalMs);
+
+                    activeIntervals.set(lessonId, intervalId);
+                }
+
+                function stopTracking(lessonId) {
+                    const intervalId = activeIntervals.get(lessonId);
+                    if (intervalId) {
+                        window.clearInterval(intervalId);
+                        activeIntervals.delete(lessonId);
+                    }
+                }
+
+                function flushAllProgress() {
+                    players.forEach(function (player, lessonId) {
+                        sendProgress(lessonId, player);
+                        stopTracking(lessonId);
+                    });
+                }
+
+                window.onYouTubeIframeAPIReady = function () {
+                    document.querySelectorAll('.lesson-player').forEach(function (iframe) {
+                        const lessonId = Number(iframe.dataset.lessonId);
+                        const lastPosition = Number(iframe.dataset.lastPosition || 0);
+
+                        const player = new YT.Player(iframe.id, {
+                            events: {
+                                onReady: function (event) {
+                                    if (Number.isFinite(lastPosition) && lastPosition > 1) {
+                                        event.target.seekTo(lastPosition, true);
+                                    }
+                                },
+                                onStateChange: function (event) {
+                                    if (event.data === YT.PlayerState.PLAYING) {
+                                        startTracking(lessonId, event.target);
+                                    } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+                                        sendProgress(lessonId, event.target);
+                                        stopTracking(lessonId);
+                                    }
+                                }
+                            }
+                        });
+
+                        players.set(lessonId, player);
+                    });
+                };
+
+                window.addEventListener('pagehide', flushAllProgress);
+                document.addEventListener('visibilitychange', function () {
+                    if (document.visibilityState === 'hidden') {
+                        flushAllProgress();
+                    }
+                });
+            })();
+        </script>
+    }
+}

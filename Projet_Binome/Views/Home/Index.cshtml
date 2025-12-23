@@ -1,0 +1,134 @@
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<style>
+    .hero-section {
+        background: linear-gradient(to right, #6a11cb, #2575fc);
+        color: white;
+        padding: 60px 20px;
+        text-align: center;
+    }
+
+    .hero-section h1 {
+        font-size: 3.5rem;
+        font-weight: bold;
+    }
+
+    .hero-section p {
+        font-size: 1.25rem;
+        margin-bottom: 30px;
+    }
+
+    .features-section {
+        padding: 40px 20px;
+    }
+
+    .feature {
+        text-align: center;
+        padding: 20px;
+    }
+
+    .feature i {
+        font-size: 3rem;
+        color: #007bff;
+    }
+
+    .feature h3 {
+        font-size: 1.5rem;
+        margin-top: 15px;
+    }
+
+    .certificate-section {
+        background-color: #f8f9fa;
+        padding: 40px 20px;
+        text-align: center;
+    }
+
+    .certificate-section h2 {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+    }
+
+    .certificate-steps {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 30px;
+    }
+
+    .step {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        width: 200px;
+    }
+
+    .step h4 {
+        font-size: 1.25rem;
+        color: #007bff;
+    }
+</style>
+
+<div class="hero-section">
+    <h1>Welcome to Brain Explosion</h1>
+    <p>Your ultimate destination for mastering new skills through engaging courses, challenging quizzes, and verifiable certificates.</p>
+    <a class="btn btn-light btn-lg" asp-controller="Courses" asp-action="Index">Explore Courses</a>
+</div>
+
+<div class="features-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature">
+                    <i class="fas fa-book-open"></i>
+                    <h3>Interactive Courses</h3>
+                    <p>Learn at your own pace with our comprehensive courses, featuring video lessons and practical examples.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature">
+                    <i class="fas fa-question-circle"></i>
+                    <h3>Challenging Quizzes</h3>
+                    <p>Test your knowledge and reinforce your learning with our challenging quizzes for each course.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature">
+                    <i class="fas fa-certificate"></i>
+                    <h3>Verified Certificates</h3>
+                    <p>Earn a certificate of completion to showcase your new skills to the world.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="certificate-section">
+    <div class="container">
+        <h2>How to Get Your Certificate</h2>
+        <p>Follow these simple steps to earn your certificate and validate your skills.</p>
+        <div class="certificate-steps">
+            <div class="step">
+                <h4>1. Enroll in a Course</h4>
+                <p>Choose from our wide range of courses and start learning today.</p>
+            </div>
+            <div class="step">
+                <h4>2. Complete the Lessons</h4>
+                <p>Watch all the video lessons and study the provided materials.</p>
+            </div>
+            <div class="step">
+                <h4>3. Pass the Quiz</h4>
+                <p>Successfully pass the final quiz to demonstrate your understanding.</p>
+            </div>
+            <div class="step">
+                <h4>4. Receive Your Certificate</h4>
+                <p>Get your personalized certificate of completion instantly.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Font Awesome for icons -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>

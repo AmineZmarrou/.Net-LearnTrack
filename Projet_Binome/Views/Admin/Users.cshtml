@@ -1,0 +1,42 @@
+@model IEnumerable<Projet_Binome.Models.ViewModels.AdminUserViewModel>
+@{
+    ViewData["Title"] = "Administration - Utilisateurs";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Gestion des utilisateurs</h2>
+    <a class="btn btn-outline-secondary" asp-controller="Admin" asp-action="Courses">Gérer les cours</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Admin</th>
+                <th>Inscrit le</th>
+                <th>Cours</th>
+                <th>Quiz</th>
+                <th>Certificats</th>
+                <th class="text-end">Historique</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var u in Model)
+        {
+            <tr>
+                <td>@u.FullName</td>
+                <td>@u.Email</td>
+                <td>@(u.IsAdmin ? "Oui" : "Non")</td>
+                <td>@u.CreatedAt.ToShortDateString()</td>
+                <td>@u.CoursesCount</td>
+                <td>@u.QuizAttemptsCount</td>
+                <td>@u.CertificatesCount</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-primary" asp-controller="Admin" asp-action="UserHistory" asp-route-id="@u.Id">Voir</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,98 @@
+@model Projet_Binome.Models.ViewModels.AdminUserHistoryViewModel
+@{
+    ViewData["Title"] = "Historique - " + Model.FullName;
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">@Model.FullName</h2>
+        <div class="text-muted">@Model.Email</div>
+    </div>
+    <a class="btn btn-outline-secondary" asp-controller="Admin" asp-action="Users">Retour</a>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">Progression des cours</div>
+            <div class="card-body">
+                @if (!Model.Courses.Any())
+                {
+                    <p class="text-muted mb-0">Aucune progression.</p>
+                }
+                else
+                {
+                    <ul class="list-group list-group-flush">
+                    @foreach (var p in Model.Courses)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>@p.Course?.Title</strong><br />
+                                <small class="text-muted">Dernier accès : @p.LastAccessed.ToShortDateString()</small>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">@($"{p.PercentComplete}%")</span>
+                        </li>
+                    }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">Quiz passés</div>
+            <div class="card-body">
+                @if (!Model.Attempts.Any())
+                {
+                    <p class="text-muted mb-0">Aucun quiz.</p>
+                }
+                else
+                {
+                    <ul class="list-group list-group-flush">
+                    @foreach (var a in Model.Attempts)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>@a.Quiz?.Course?.Title</strong><br />
+                                <small class="text-muted">@a.TakenAt.ToShortDateString() - @a.Score/@a.TotalQuestions (@a.Percentage %)</small>
+                            </div>
+                            <span class="badge @(a.Passed ? "bg-success" : "bg-danger")">@(a.Passed ? "Réussi" : "Échec")</span>
+                        </li>
+                    }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">Certificats</div>
+    <div class="card-body">
+        @if (!Model.Certificates.Any())
+        {
+            <p class="text-muted mb-0">Aucun certificat.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Cours</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var c in Model.Certificates)
+                    {
+                        <tr>
+                            <td>@c.Course?.Title</td>
+                            <td>@c.CompletionDate.ToShortDateString()</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,67 @@
+@model Projet_Binome.Models.Certificate
+
+@{
+    ViewData["Title"] = "Certificate of Completion";
+    Layout = null; // No layout for the certificate
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Certificate of Completion</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .certificate-container {
+            border: 10px solid #78c2ad;
+            padding: 50px;
+            width: 800px;
+            margin: 50px auto;
+            text-align: center;
+        }
+        .certificate-title {
+            font-size: 50px;
+            font-weight: bold;
+            color: #3a3a3a;
+        }
+        .certificate-subtitle {
+            font-size: 25px;
+            color: #555;
+        }
+        .user-name {
+            font-size: 40px;
+            font-style: italic;
+            margin: 40px 0;
+            color: #007bff;
+        }
+        .course-name {
+            font-size: 30px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="certificate-container">
+        <div class="certificate-title">
+            Certificate of Completion
+        </div>
+        <div class="certificate-subtitle">
+            This is to certify that
+        </div>
+        <div class="user-name">
+            @Model.UserName
+        </div>
+        <div class="certificate-subtitle">
+            has successfully completed the course
+        </div>
+        <div class="course-name">
+            @Model.Course.Title
+        </div>
+        <div class="mt-4">
+            <em>on @Model.CompletionDate.ToString("MMMM dd, yyyy")</em>
+        </div>
+    </div>
+</body>
+</html>
