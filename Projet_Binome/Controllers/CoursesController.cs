@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace Projet_Binome.Controllers
 {
+    [Authorize]
     public class CoursesController : Controller
     {
         private readonly ApplicationDbContext _context;

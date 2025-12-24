@@ -148,5 +148,29 @@ namespace Projet_Binome.Controllers
 
             return View(model);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return NotFound();
+            }
+
+            var user = await _context.Users.FindAsync(id);
+            if (user != null)
+            {
+                if (user.IsAdmin)
+                {
+                    return RedirectToAction(nameof(Users));
+                }
+
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Users));
+        }
     }
 }

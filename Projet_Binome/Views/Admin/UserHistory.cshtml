@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Historique - " + Model.FullName;
 }
+
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
         <h2 class="mb-1">@Model.FullName</h2>
@@ -12,8 +13,8 @@
 
 <div class="row">
     <div class="col-lg-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header">Progression des cours</div>
+        <div class="card h-100 progress-card">
+            <div class="card-header panel-header panel-header--warm">Progression des cours</div>
             <div class="card-body">
                 @if (!Model.Courses.Any())
                 {
@@ -27,9 +28,9 @@
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
                                 <strong>@p.Course?.Title</strong><br />
-                                <small class="text-muted">Dernier accès : @p.LastAccessed.ToShortDateString()</small>
+                                <small class="text-muted">Dernier acces : @p.LastAccessed.ToShortDateString()</small>
                             </div>
-                            <span class="badge bg-primary rounded-pill">@($"{p.PercentComplete}%")</span>
+                            <span class="pill">@($"{p.PercentComplete}%")</span>
                         </li>
                     }
                     </ul>
@@ -38,8 +39,8 @@
         </div>
     </div>
     <div class="col-lg-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header">Quiz passés</div>
+        <div class="card h-100 progress-card">
+            <div class="card-header panel-header panel-header--sun">Quiz passes</div>
             <div class="card-body">
                 @if (!Model.Attempts.Any())
                 {
@@ -55,7 +56,7 @@
                                 <strong>@a.Quiz?.Course?.Title</strong><br />
                                 <small class="text-muted">@a.TakenAt.ToShortDateString() - @a.Score/@a.TotalQuestions (@a.Percentage %)</small>
                             </div>
-                            <span class="badge @(a.Passed ? "bg-success" : "bg-danger")">@(a.Passed ? "Réussi" : "Échec")</span>
+                            <span class="status-pill @(a.Passed ? "status-pill--success" : "status-pill--danger")">@(a.Passed ? "Reussi" : "Echec")</span>
                         </li>
                     }
                     </ul>
@@ -65,8 +66,8 @@
     </div>
 </div>
 
-<div class="card mb-4">
-    <div class="card-header">Certificats</div>
+<div class="card progress-card mb-4">
+    <div class="card-header panel-header panel-header--green">Certificats</div>
     <div class="card-body">
         @if (!Model.Certificates.Any())
         {
@@ -75,7 +76,7 @@
         else
         {
             <div class="table-responsive">
-                <table class="table table-striped mb-0">
+                <table class="table table-striped mb-0 table-clean">
                     <thead>
                         <tr>
                             <th>Cours</th>

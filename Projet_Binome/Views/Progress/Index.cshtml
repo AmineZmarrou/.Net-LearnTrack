@@ -6,10 +6,10 @@
 
 <h1 class="mb-4">Votre progression</h1>
 
-<div class="row">
-    <div class="col-lg-6 mb-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-header bg-primary text-white">
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card h-100 progress-card">
+            <div class="card-header panel-header panel-header--warm">
                 <strong>Cours suivis</strong>
             </div>
             <div class="card-body">
@@ -18,8 +18,10 @@
                     foreach (var course in Model.Courses)
                     {
                         var status = course.QuizPassed ? "Quiz reussi" : "En cours";
-                        <div class="mb-3 p-3 border rounded">
-                            <div class="d-flex justify-content-between">
+                        var statusClass = course.QuizPassed ? "status-pill--success" : "status-pill--muted";
+                        var barClass = course.PercentComplete >= 100 ? "progress-bar-warm progress-bar-complete" : "progress-bar-warm";
+                        <div class="progress-item">
+                            <div class="d-flex justify-content-between align-items-start gap-3">
                                 <div>
                                     <h5 class="mb-1">@course.Course.Title</h5>
                                     <div class="text-muted small">Dernier acces : @course.LastAccessed.ToLocalTime().ToString("g")</div>
@@ -28,18 +30,18 @@
                                         <div class="text-success small">Termine le @course.CompletedOn.Value.ToLocalTime().ToString("d")</div>
                                     }
                                 </div>
-                                <span class="badge @(course.QuizPassed ? "bg-success" : "bg-secondary")">@status</span>
+                                <span class="status-pill @statusClass">@status</span>
                             </div>
-                            <div class="progress mt-2">
-                                <div class="progress-bar @(course.PercentComplete >= 100 ? "bg-success" : "bg-info")" role="progressbar" style="width: @course.PercentComplete%;" aria-valuenow="@course.PercentComplete" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress progress-warm mt-2">
+                                <div class="progress-bar @barClass" role="progressbar" style="width: @course.PercentComplete%;" aria-valuenow="@course.PercentComplete" aria-valuemin="0" aria-valuemax="100">
                                     @course.PercentComplete.ToString("0")%
                                 </div>
                             </div>
-                            <div class="mt-2">
+                            <div class="mt-2 d-flex flex-wrap gap-2 align-items-center">
                                 <a asp-controller="Courses" asp-action="Details" asp-route-id="@course.CourseId" class="small">Continuer le cours</a>
                                 @if (course.CertificateId.HasValue)
                                 {
-                                    <span class="text-success small ms-2">Certificat obtenu</span>
+                                    <span class="text-success small">Certificat obtenu</span>
                                 }
                             </div>
                         </div>
@@ -53,16 +55,16 @@
         </div>
     </div>
 
-    <div class="col-lg-6 mb-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-header bg-warning">
+    <div class="col-lg-6">
+        <div class="card h-100 progress-card">
+            <div class="card-header panel-header panel-header--sun">
                 <strong>Derniers quiz</strong>
             </div>
             <div class="card-body">
                 @if (Model.Attempts.Any())
                 {
                     <div class="table-responsive">
-                        <table class="table table-sm align-middle">
+                        <table class="table table-sm align-middle table-clean">
                             <thead>
                                 <tr>
                                     <th>Cours</th>
@@ -80,11 +82,11 @@
                                         <td>
                                             @if (attempt.Passed)
                                             {
-                                                <span class="badge bg-success">Reussi</span>
+                                                <span class="status-pill status-pill--success">Reussi</span>
                                             }
                                             else
                                             {
-                                                <span class="badge bg-danger">Echoue</span>
+                                                <span class="status-pill status-pill--danger">Echoue</span>
                                             }
                                         </td>
                                         <td>@attempt.TakenAt.ToLocalTime().ToString("g")</td>
@@ -103,21 +105,21 @@
     </div>
 </div>
 
-<div class="card shadow-sm">
-    <div class="card-header bg-success text-white">
+<div class="card progress-card mt-4">
+    <div class="card-header panel-header panel-header--green">
         <strong>Certificats</strong>
     </div>
     <div class="card-body">
         @if (Model.Certificates.Any())
         {
-            <div class="row">
+            <div class="row g-3">
                 @foreach (var certificate in Model.Certificates)
                 {
-                    <div class="col-md-4 mb-3">
-                        <div class="border rounded p-3 h-100">
+                    <div class="col-md-4">
+                        <div class="certificate-card h-100">
                             <h5 class="mb-1">@certificate.Course.Title</h5>
                             <div class="text-muted small mb-2">Obtenu le @certificate.CompletionDate.ToLocalTime().ToString("d")</div>
-                            <a class="btn btn-outline-success btn-sm" asp-controller="Certificates" asp-action="Display" asp-route-id="@certificate.Id">Voir le certificat</a>
+                            <a class="btn btn-outline-secondary btn-sm" asp-controller="Certificates" asp-action="Display" asp-route-id="@certificate.Id">Voir le certificat</a>
                         </div>
                     </div>
                 }
